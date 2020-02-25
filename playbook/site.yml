@@ -1,0 +1,29 @@
+---
+- hosts: all
+  remote_user: teligent
+  become: true
+  any_errors_fatal: false
+  tasks:
+    - name: collect facts
+      setup:
+
+- hosts: all
+  remote_user: teligent
+  become: true
+  roles:
+    - { role: common, tags: common }
+    - { role: nomad-common, tags: nomad-common }
+
+- hosts: nomad-servers
+  remote_user: teligent
+  become: true
+  roles:
+    - { role: docker-install, tags: docker-install }
+    - { role: nomad-server, tags: nomad-server }
+
+- hosts: nomad-clients
+  remote_user: teligent
+  become: true
+  roles:
+    - { role: docker-install, tags: docker-install }
+    - { role: nomad-client, tags: nomad-client }

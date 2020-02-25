@@ -1,0 +1,10 @@
+---
+packages_present:
+  - net-tools
+  - unzip
+  - wget
+  - vim-enhanced
+  - telnet
+  - yum-utils
+  - device-mapper-persistent-data
+  - lvm2

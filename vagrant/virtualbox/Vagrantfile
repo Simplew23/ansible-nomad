@@ -1,0 +1,57 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+require 'yaml'
+hosts = YAML.load_file('hosts.yml')
+
+Vagrant.configure("2") do |config|
+  config.vm.box = "centos/7"
+  config.vm.box_check_update = false
+  config.vm.box_version = "1811.01"
+
+  hosts.each do |host|
+    config.vm.define host["name"] do |srv|
+
+      # Network interfaces dynamic configuraion.
+      host["network"].each do |interface, parameters|
+        srv.vm.network "private_network", 
+          ip: parameters["ip"]
+      end
+      
+      # Hostname configuration.
+      srv.vm.hostname = "%s" % host["name"]
+    
+      # Provider-specific configuration.
+      srv.vm.provider "virtualbox" do |vb|
+        vb.gui = false
+        vb.memory = host["memory"]
+        vb.cpus = host["cpus"]
+      end
+
+      # Provisioning.
+      srv.vm.provision "file", source: "~/.ssh/id_rsa.pub", destination: "/tmp/authorized_keys"
+      srv.vm.provision "shell", inline: <<-SHELL
+        
+        # Timezone configuration.
+        timedatectl set-timezone Europe/Moscow
+        
+        # OS user configuration.
+        USER=teligent
+        GROUP="${USER}"
+        PASSWORD="${USER}"
+        useradd -m "${USER}"
+        mkdir /home/"${USER}"/.ssh/
+        mv /tmp/authorized_keys /home/"${USER}"/.ssh/
+        chmod 700 /home/"${USER}"/.ssh/
+        chmod 600 /home/"${USER}"/.ssh/*
+        chown -R "${USER}":"${GROUP}" /home/"${USER}"/.ssh/
+        usermod --password $(openssl passwd "${PASSWORD}") "${USER}"
+        echo "%${USER} ALL=(ALL) NOPASSWD: ALL" > "/etc/sudoers.d/${USER}"
+        
+        # SSH configuration.
+        sed -i '/^PasswordAuthentication/s/no/yes/' /etc/ssh/sshd_config
+        systemctl restart sshd
+      SHELL
+    end
+  end
+end

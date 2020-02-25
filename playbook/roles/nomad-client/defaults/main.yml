@@ -1,0 +1,5 @@
+---
+packages_present:
+  - docker-ce
+  - docker-ce-cli
+  - containerd.io

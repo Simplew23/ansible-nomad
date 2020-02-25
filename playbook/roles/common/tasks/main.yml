@@ -1,0 +1,15 @@
+---
+- name: install packages
+  yum:
+    name: "{{ packages_present }}"
+    state: present
+    update_cache: true
+
+- name: "prepare {{ os_management_user }} .vimrc"
+  template:
+    src: vimrc.j2
+    dest: "/home/{{ os_management_user }}/.vimrc"
+    owner: "{{ os_management_user }}"
+    group: "{{ os_management_user }}"
+    mode: 0644
+  

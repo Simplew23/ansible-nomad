@@ -1,0 +1,6 @@
+[nomad-servers]
+nomad-serverA ansible_host="nomad-node1"
+
+[nomad-clients]
+nomad-clientA ansible_host="nomad-node2"
+nomad-clientB ansible_host="nomad-node3"

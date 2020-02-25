@@ -1,0 +1,26 @@
+---
+- name: install docker repository
+  template:
+    src: etc/yum.repos.d/docker-ce.repo.j2
+    dest: /etc/yum.repos.d/docker-ce.repo
+    owner: root
+    group: root
+    mode: 0644
+
+- name: install docker
+  yum:
+    name: "{{ packages_present }}"
+    state: present
+    update_cache: true
+
+- name: enable and start docker
+  systemd:
+    name: docker
+    enabled: true
+    state: started
+
+- name: "add {{ os_management_user }} user to docker group"
+  user:
+    name: "{{ os_management_user }}"
+    groups: docker
+    append: true

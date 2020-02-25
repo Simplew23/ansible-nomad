@@ -1,0 +1,19 @@
+datacenter = "dc1"
+data_dir = "{{ nomad_data_dir }}"
+bind_addr = "{{ ansible_default_ipv4.address }}"
+server {
+  enabled = true
+  bootstrap_expect = 1
+  
+  server_join {
+    retry_join = ["{{ groups['nomad-servers'] | map('extract', hostvars, ['ansible_default_ipv4','address']) | sort | join('", "') }}"]
+  }
+}
+client {
+  enabled = true
+  server_join {
+    retry_join = ["{{ groups['nomad-servers'] | map('extract', hostvars, ['ansible_default_ipv4','address']) | sort | join('", "') }}"]
+    retry_max = 3
+    retry_interval = "15s"
+  }
+}
